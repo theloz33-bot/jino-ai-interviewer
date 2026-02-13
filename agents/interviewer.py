@@ -8,8 +8,8 @@ import os
 class InterviewerAgent:
     def __init__(self):
         # Google Gemini 모델 사용 (gemini-pro)
-        # 키를 코드에 직접 넣습니다 (임시)
-        api_key = "AIzaSy..."
+        # 키를 코드에 직접 넣습니다 (사용자 제공)
+        api_key = "AIzaSyDwZsm-JRXLdwCocXGVVdKRfld5m5dC-TQ"
         
         # 환경변수에 없으면 여기서 사용
         if not os.environ.get("GOOGLE_API_KEY"):
