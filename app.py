@@ -1,10 +1,11 @@
 import streamlit as st
 import os
+import sys
+
+# 경로 문제 해결 (Streamlit Cloud에서 utils, agents 폴더 인식)
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from dotenv import load_dotenv
-
-# 페이지 설정
-st.set_page_config(page_title="AI 면접관", layout="wide")
-
 from utils.state_manager import SessionManager
 from agents.interviewer import InterviewerAgent
 from agents.evaluator import EvaluatorAgent
@@ -12,6 +13,9 @@ from agents.orchestrator import Orchestrator
 
 # 환경 변수 로드
 load_dotenv()
+
+# 페이지 설정
+st.set_page_config(page_title="AI 면접관", layout="wide")
 
 # 세션 초기화
 def init_session():
@@ -42,7 +46,6 @@ with st.sidebar:
 if "current_session_id" not in st.session_state:
     st.info("👇 면접을 시작하려면 아래 입력창에 '시작'을 입력하고 엔터를 누르세요.")
     
-    # Form 제거하고 일반 Input 사용 (가장 안전한 방법)
     start_input = st.text_input("입력:", value="", key="start_input")
     
     if start_input:
@@ -62,22 +65,18 @@ if "current_session_id" not in st.session_state:
 
 # 2. 면접 진행 중
 else:
-    # 대화 내용 출력
     for msg in st.session_state.messages:
         role = "🤖 면접관" if msg["role"] == "assistant" else "👤 지원자"
         st.markdown(f"**{role}:**")
         st.markdown(msg["content"])
         st.markdown("---")
 
-    # 답변 입력 (Form 없이 일반 Input 사용)
     user_input = st.text_input("답변을 입력하세요:", key="user_answer_input")
     
     if user_input:
-        # 중복 전송 방지 로직 (마지막 메시지와 다를 때만 처리)
         if not st.session_state.messages or st.session_state.messages[-1]["content"] != user_input:
             st.session_state.messages.append({"role": "user", "content": user_input})
             
-            # 오케스트레이터 호출
             with st.spinner("생각 중..."):
                 response = st.session_state.orchestrator.process_message(
                     st.session_state.current_session_id, 
