@@ -7,7 +7,14 @@ import os
 
 class InterviewerAgent:
     def __init__(self):
-        # Gemini Pro 사용
+        # Google Gemini 모델 사용 (gemini-pro)
+        # 키를 코드에 직접 넣습니다 (임시)
+        api_key = "AIzaSy..."
+        
+        # 환경변수에 없으면 여기서 사용
+        if not os.environ.get("GOOGLE_API_KEY"):
+            os.environ["GOOGLE_API_KEY"] = api_key
+
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
         self.prompt_template = PromptTemplate(
             input_variables=["current_q_index", "max_questions", "qa_history", "last_answer", "followup_request"],
@@ -63,7 +70,7 @@ class InterviewerAgent:
             response = self.llm.invoke(final_prompt)
             content = response.content
             
-            # JSON 파싱 (Gemini는 마크다운 코드 블록을 자주 포함함)
+            # JSON 파싱
             cleaned_content = content.strip()
             if cleaned_content.startswith("```"):
                 lines = cleaned_content.splitlines()

@@ -8,6 +8,11 @@ import os
 class EvaluatorAgent:
     def __init__(self):
         # Gemini Pro 사용
+        # 임시 Key 하드코딩
+        api_key = "AIzaSy..."
+        if not os.environ.get("GOOGLE_API_KEY"):
+             os.environ["GOOGLE_API_KEY"] = api_key
+
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
         self.prompt_template = PromptTemplate(
             input_variables=["qa_history"],
