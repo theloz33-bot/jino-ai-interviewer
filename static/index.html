@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 면접관</title>
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; height: 100vh; }
+        .chat-container { width: 100%; max-width: 600px; background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; height: 90vh; }
+        .header { background: #007bff; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
+        .chat-log { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .message { max-width: 80%; padding: 10px 15px; border-radius: 10px; line-height: 1.5; font-size: 0.95em; position: relative; }
+        .bot { background: #e9ecef; align-self: flex-start; color: #333; }
+        .user { background: #007bff; align-self: flex-end; color: white; }
+        .vi-text { font-size: 0.85em; color: #666; margin-top: 5px; font-style: italic; display: block; }
+        .input-area { padding: 15px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 1em; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .loading { text-align: center; color: #888; font-size: 0.8em; margin: 10px 0; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="header">☀️ 태양광 인버터 기술영업 면접</div>
+    <div class="chat-log" id="chatLog">
+        <div class="message bot">
+            👋 안녕하세요! 면접을 시작하려면 아래 입력창에 <b>'시작'</b>이라고 입력해주세요.
+        </div>
+    </div>
+    <div class="loading" id="loading">면접관이 생각 중입니다...</div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="답변을 입력하세요..." onkeypress="handleEnter(event)">
+        <button onclick="sendMessage()" id="sendBtn">전송</button>
+    </div>
+</div>
+
+<script>
+    let currentSessionId = null;
+
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const loading = document.getElementById('loading');
+        const log = document.getElementById('chatLog'); // 로그 영역 가져오기
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // 사용자 메시지 표시
+        addMessage(message, 'user');
+        input.value = '';
+        input.disabled = true;
+        sendBtn.disabled = true;
+        loading.style.display = 'block'; // 로딩 표시
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, session_id: currentSessionId })
+            });
+
+            if (!response.ok) throw new Error('Network error');
+
+            const data = await response.json();
+            
+            // 세션 ID 저장 (첫 응답 시)
+            if (data.session_id) currentSessionId = data.session_id;
+
+            // 봇 응답 표시
+            if (data.ko) {
+                let botHtml = `<b>${data.ko}</b>`;
+                if (data.vi) botHtml += `<br><span class="vi-text">${data.vi}</span>`;
+                addMessage(botHtml, 'bot', true);
+            }
+
+            if (data.type === 'report') {
+                addMessage("🎉 면접이 종료되었습니다! 수고하셨습니다.", 'bot');
+                // 리포트는 줄바꿈 처리해서 보여주기
+                const reportHtml = data.ko.replace(/\n/g, '<br>');
+                addMessage(reportHtml, 'bot', true);
+            }
+
+        } catch (error) {
+            console.error(error);
+            addMessage("⚠️ 오류가 발생했습니다. 다시 시도해주세요.", 'bot');
+        } finally {
+            input.disabled = false;
+            sendBtn.disabled = false;
+            loading.style.display = 'none'; // 로딩 숨김
+            input.focus();
+            log.scrollTop = log.scrollHeight; // 스크롤 맨 아래로
+        }
+    }
+
+    function addMessage(text, type, isHtml = false) {
+        const log = document.getElementById('chatLog');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${type}`;
+        if (isHtml) msgDiv.innerHTML = text;
+        else msgDiv.textContent = text;
+        log.appendChild(msgDiv);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function handleEnter(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+</script>
+
+</body>
+</html>
