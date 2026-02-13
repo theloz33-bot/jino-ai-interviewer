@@ -1,6 +1,6 @@
 import json
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from utils.prompts import EVALUATOR_PROMPT_TEMPLATE
 from utils.schemas import EvaluationOutput
 import os
