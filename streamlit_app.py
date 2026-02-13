@@ -122,7 +122,8 @@ class InterviewerAgent:
         if not os.environ.get("GOOGLE_API_KEY"):
             os.environ["GOOGLE_API_KEY"] = api_key
 
-        self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
+        # 모델 변경: gemini-1.5-flash (최신 모델, 더 빠르고 안정적)
+        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
         self.prompt_template = PromptTemplate(
             input_variables=["current_q_index", "max_questions", "qa_history", "last_answer", "followup_request"],
             template=INTERVIEWER_PROMPT_TEMPLATE
@@ -182,9 +183,10 @@ class InterviewerAgent:
                 category=data.get("category", "General")
             )
         except Exception as e:
+            # 에러 메시지를 화면에 출력하도록 수정
             return InterviewerOutput(
                 type="error",
-                prompt={"ko": "오류가 발생했습니다.", "vi": "Error"},
+                prompt={"ko": f"오류가 발생했습니다: {str(e)}", "vi": "Error"},
                 q_index=state.current_q_index,
                 category="Error"
             )
@@ -196,7 +198,8 @@ class EvaluatorAgent:
         if not os.environ.get("GOOGLE_API_KEY"):
             os.environ["GOOGLE_API_KEY"] = api_key
 
-        self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
+        # 모델 변경: gemini-1.5-flash
+        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
         self.prompt_template = PromptTemplate(
             input_variables=["qa_history"],
             template=EVALUATOR_PROMPT_TEMPLATE
@@ -230,8 +233,8 @@ class EvaluatorAgent:
             return EvaluationOutput(
                 report_markdown=data.get("report_markdown", {"ko": "평가 실패", "vi": "Fail"})
             )
-        except Exception:
-            return EvaluationOutput(report_markdown={"ko": "오류 발생", "vi": "Error"})
+        except Exception as e:
+            return EvaluationOutput(report_markdown={"ko": f"오류 발생: {str(e)}", "vi": "Error"})
 
 # ==========================================
 # 4. Session Manager
