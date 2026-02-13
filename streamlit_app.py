@@ -122,8 +122,8 @@ class InterviewerAgent:
         if not os.environ.get("GOOGLE_API_KEY"):
             os.environ["GOOGLE_API_KEY"] = api_key
 
-        # 모델 변경: gemini-1.5-flash (최신 모델, 더 빠르고 안정적)
-        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
+        # 모델 변경: gemini-pro (가장 안정적)
+        self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
         self.prompt_template = PromptTemplate(
             input_variables=["current_q_index", "max_questions", "qa_history", "last_answer", "followup_request"],
             template=INTERVIEWER_PROMPT_TEMPLATE
@@ -198,8 +198,8 @@ class EvaluatorAgent:
         if not os.environ.get("GOOGLE_API_KEY"):
             os.environ["GOOGLE_API_KEY"] = api_key
 
-        # 모델 변경: gemini-1.5-flash
-        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
+        # 모델 변경: gemini-pro (가장 안정적)
+        self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
         self.prompt_template = PromptTemplate(
             input_variables=["qa_history"],
             template=EVALUATOR_PROMPT_TEMPLATE
