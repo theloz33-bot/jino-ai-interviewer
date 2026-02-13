@@ -75,7 +75,7 @@ INTERVIEWER_PROMPT_TEMPLATE = """
 
 [JSON 출력 예시]
 {{
-  "type": "question",  // 또는 "followup"
+  "type": "question",
   "q_index": {current_q_index},
   "category": "직무 적합성",
   "prompt": {{
