@@ -117,10 +117,14 @@ JSON Output:
 # ==========================================
 class InterviewerAgent:
     def __init__(self):
-        # API Key 직접 주입 (사용자 제공)
-        api_key = "AIzaSyDwZsm-JRXLdwCocXGVVdKRfld5m5dC-TQ"
-        if not os.environ.get("GOOGLE_API_KEY"):
-            os.environ["GOOGLE_API_KEY"] = api_key
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            try:
+                if hasattr(st, "secrets") and "GOOGLE_API_KEY" in st.secrets:
+                    api_key = st.secrets["GOOGLE_API_KEY"]
+                    os.environ["GOOGLE_API_KEY"] = api_key
+            except Exception:
+                pass
 
         # 모델 변경: gemini-pro (가장 안정적)
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
@@ -193,10 +197,14 @@ class InterviewerAgent:
 
 class EvaluatorAgent:
     def __init__(self):
-        # API Key 직접 주입
-        api_key = "AIzaSyDwZsm-JRXLdwCocXGVVdKRfld5m5dC-TQ"
-        if not os.environ.get("GOOGLE_API_KEY"):
-            os.environ["GOOGLE_API_KEY"] = api_key
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            try:
+                if hasattr(st, "secrets") and "GOOGLE_API_KEY" in st.secrets:
+                    api_key = st.secrets["GOOGLE_API_KEY"]
+                    os.environ["GOOGLE_API_KEY"] = api_key
+            except Exception:
+                pass
 
         # 모델 변경: gemini-pro (가장 안정적)
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
